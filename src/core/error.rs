@@ -1,7 +1,7 @@
 use crate::core::board::Position;
 use thiserror::Error;
 
-#[derive(Error, Debug, PartialEq)]
+#[derive(Error, Debug)]
 pub enum GoError {
     #[error("Position {pos:?} is out of bounds")]
     OutOfBounds { pos: Position },
@@ -9,8 +9,8 @@ pub enum GoError {
     #[error("Position {pos:?} is already occupied")]
     PositionOccupied { pos: Position },
 
-    #[error("Invalid mode: {reason}")]
-    InvalidMove { reason: String },
+    #[error("Suicidal move")]
+    SuicidalMove,
 
     #[error("Ko rule violation")]
     KoRuleViolation,
@@ -25,10 +25,8 @@ impl GoError {
         Self::PositionOccupied { pos }
     }
 
-    pub fn invalid_move<S: Into<String>>(reason: S) -> Self {
-        Self::InvalidMove {
-            reason: reason.into(),
-        }
+    pub fn suicidal_move() -> Self {
+        Self::SuicidalMove
     }
 
     pub fn ko_rule_violation() -> Self {
@@ -41,14 +39,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn create_out_of_bounds() {
+    fn create_out_of_bounds_error() {
         let pos = Position { x: 0, y: 0 };
         let error = GoError::out_of_bounds(pos);
         assert!(matches!(error, GoError::OutOfBounds { .. }));
     }
 
     #[test]
-    fn create_position_occupied() {
+    fn create_position_occupied_error() {
         let pos = Position { x: 0, y: 0 };
 
         let error = GoError::position_occupied(pos);
@@ -56,15 +54,13 @@ mod tests {
     }
 
     #[test]
-    fn create_invalid_move() {
-        let reason = "Test reason";
-
-        let error = GoError::invalid_move(reason);
-        assert!(matches!(error, GoError::InvalidMove { .. }));
+    fn create_suicidal_move_error() {
+        let error = GoError::suicidal_move();
+        assert!(matches!(error, GoError::SuicidalMove));
     }
 
     #[test]
-    fn create_ko_rule_violation() {
+    fn create_ko_rule_violation_error() {
         let error = GoError::ko_rule_violation();
         assert!(matches!(error, GoError::KoRuleViolation));
     }

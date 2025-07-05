@@ -116,9 +116,7 @@ impl Board {
         if !self.has_liberties(&current_group) && captured.is_empty() {
             self.grid[index] = None;
             self.update_hash(pos, None);
-            return Err(GoError::InvalidMove {
-                reason: "Suicidal move".to_owned(),
-            });
+            return Err(GoError::suicidal_move());
         }
 
         let captured_len = captured.len();

@@ -9,7 +9,7 @@ pub enum Stone {
 }
 
 impl Stone {
-    fn opposite(&self) -> Self {
+    pub fn opposite(&self) -> Self {
         match self {
             Stone::Black => Stone::White,
             Stone::White => Stone::Black,
@@ -57,7 +57,7 @@ impl Board {
     }
 
     #[inline]
-    fn pos_to_index(&self, pos: Position) -> usize {
+    pub fn pos_to_index(&self, pos: Position) -> usize {
         pos.x + pos.y * self.size
     }
 
@@ -79,7 +79,7 @@ impl Board {
         }
     }
 
-    fn is_valid_move(&self, pos: Position) -> Result<(), GoError> {
+    fn internal_move_validate(&self, pos: Position) -> Result<(), GoError> {
         if !self.is_on_board(pos) {
             return Err(GoError::out_of_bounds(pos));
         }
@@ -90,8 +90,14 @@ impl Board {
         Ok(())
     }
 
+    pub fn is_valid_move(&self, pos: Position, stone: Stone) -> bool {
+        let mut board_clone = self.clone();
+
+        board_clone.place_stone(pos, stone).is_ok()
+    }
+
     pub fn place_stone(&mut self, pos: Position, stone: Stone) -> Result<usize, GoError> {
-        self.is_valid_move(pos)?;
+        self.internal_move_validate(pos)?;
 
         let current_hash = self.calculate_hash();
 
@@ -207,7 +213,7 @@ impl Board {
         }
     }
 
-    fn get_neighbors(&self, pos: Position) -> Vec<Position> {
+    pub fn get_neighbors(&self, pos: Position) -> Vec<Position> {
         let mut neighbors = Vec::new();
 
         let directions = [(-1, 0), (1, 0), (0, -1), (0, 1)];
@@ -227,7 +233,7 @@ impl Board {
         neighbors
     }
 
-    fn count_liberties(&self, group: &[Position]) -> usize {
+    pub fn count_liberties(&self, group: &[Position]) -> usize {
         let mut liberties = 0;
         let mut counted = vec![false; self.size * self.size];
 

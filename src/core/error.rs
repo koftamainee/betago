@@ -14,6 +14,9 @@ pub enum GoError {
 
     #[error("Ko rule violation")]
     KoRuleViolation,
+
+    #[error("Game over")]
+    GameOver,
 }
 
 impl GoError {
@@ -31,6 +34,9 @@ impl GoError {
 
     pub fn ko_rule_violation() -> Self {
         Self::KoRuleViolation
+    }
+    pub fn game_over() -> Self {
+        Self::GameOver
     }
 }
 
@@ -63,5 +69,11 @@ mod tests {
     fn create_ko_rule_violation_error() {
         let error = GoError::ko_rule_violation();
         assert!(matches!(error, GoError::KoRuleViolation));
+    }
+
+    #[test]
+    fn create_game_over_error() {
+        let error = GoError::game_over();
+        assert!(matches!(error, GoError::GameOver));
     }
 }
